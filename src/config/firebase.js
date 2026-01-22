@@ -11,7 +11,8 @@ const firebaseConfig = {
   storageBucket: "masterpiece-cv.firebasestorage.app",
   messagingSenderId: "81402561194",
   appId: "1:81402561194:web:d9c5d2879d7be0faae06d3",
-  measurementId: "G-L02JQD8DCJ"
+  measurementId: "G-L02JQD8DCJ",
+  databaseURL: "https://masterpiece-cv-default-rtdb.firebaseio.com"
 };
 
 // Initialize Firebase
