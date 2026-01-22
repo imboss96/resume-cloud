@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getCVData, updateCVData, signInWithGoogle, signOutUser, isAuthenticated, isAdmin, getCurrentUser } from '../services/api';
 import { defaultCVData } from '../data/defaultCVData';
-import { MdSave, MdLogout, MdClose } from 'react-icons/md';
-import './AdminDashboard.css';
+import { MdSave } from 'react-icons/md';
+import './AdminDashboard.modern.css';
 
 function AdminDashboard() {
   const [cvData, setCVData] = useState(defaultCVData);
@@ -131,173 +131,210 @@ function AdminDashboard() {
       {showAuthPrompt && (
         <div className="auth-modal-overlay">
           <div className="auth-modal">
-            <h2>🔐 Admin Access Required</h2>
-            <p>Sign in with Google to edit the CV</p>
+            <div className="auth-icon">🔐</div>
+            <h2>Admin Access Required</h2>
+            <p>Sign in with your Google account to edit your CV</p>
             {authError && <div className="auth-error">{authError}</div>}
             <button 
               type="button" 
               className="google-signin-btn"
               onClick={handleGoogleSignIn}
             >
-              🔐 Sign in with Google
+              Sign in with Google
             </button>
-            <p style={{ marginTop: '20px', fontSize: '12px', color: '#666' }}>
-              Your email must be marked as admin in the database to edit
+            <p className="auth-note">
+              Your email must be marked as admin in Firestore to access editing
             </p>
           </div>
         </div>
       )}
 
-      <div className="admin-header">
-        <h1>📊 CV Dashboard</h1>
-        <div className="admin-actions">
-          <a href="/" className="link-btn">View CV</a>
-          <a href="/analytics" className="link-btn">📈 Analytics</a>
-          {authenticated && (
-            <>
-              <span className="user-email">👤 {userEmail}</span>
-              <button className="logout-btn" onClick={handleLogout}>
-                <MdLogout /> Logout
-              </button>
-            </>
-          )}
-          <button className="save-btn" onClick={handleSave} disabled={loading || !authenticated}>
-            {loading ? 'Saving...' : <><MdSave /> Save Changes</>}
-          </button>
-          <a href="/" className="close-btn" title="Cancel">
-            <MdClose />
-          </a>
-        </div>
-      </div>
-
-      {message && <div className={`message ${message.includes('✓') ? 'success' : 'error'}`}>{message}</div>}
-
-      <div className="admin-content">
-        <div className="tab-navigation">
-          <button 
-            className={`tab-btn ${activeTab === 'personal' ? 'active' : ''}`}
-            onClick={() => setActiveTab('personal')}
-          >
-            Personal Info
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'skills' ? 'active' : ''}`}
-            onClick={() => setActiveTab('skills')}
-          >
-            Skills
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'education' ? 'active' : ''}`}
-            onClick={() => setActiveTab('education')}
-          >
-            Education
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'experience' ? 'active' : ''}`}
-            onClick={() => setActiveTab('experience')}
-          >
-            Experience
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'projects' ? 'active' : ''}`}
-            onClick={() => setActiveTab('projects')}
-          >
-            Projects
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'extracurriculars' ? 'active' : ''}`}
-            onClick={() => setActiveTab('extracurriculars')}
-          >
-            Extracurriculars
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'styling' ? 'active' : ''}`}
-            onClick={() => setActiveTab('styling')}
-          >
-            🎨 Styling
-          </button>
+      <div className="admin-wrapper">
+        {/* Header */}
+        <div className="admin-topbar">
+          <div className="topbar-left">
+            <h1>📊 Dashboard</h1>
+            {authenticated && <span className="user-badge">👤 {userEmail}</span>}
+          </div>
+          <div className="topbar-actions">
+            <a href="/" className="icon-btn" title="View CV">📄</a>
+            <a href="/analytics" className="icon-btn" title="Analytics">📈</a>
+            {authenticated && (
+              <button className="icon-btn logout-icon" onClick={handleLogout} title="Logout">🚪</button>
+            )}
+          </div>
         </div>
 
-        <div className="tab-content">
-          {/* Personal Info Tab */}
-          {activeTab === 'personal' && (
-            <div className="form-section">
-              <h2>Personal Information</h2>
-              <div className="form-group">
-                <label>Full Name</label>
-                <input 
-                  type="text" 
-                  value={cvData.personalInfo.name}
-                  onChange={(e) => updateNestedField('personalInfo.name', e.target.value)}
-                  placeholder="Enter your full name"
-                />
-              </div>
-              <div className="form-group">
-                <label>Professional Title</label>
-                <input 
-                  type="text" 
-                  value={cvData.personalInfo.title}
-                  onChange={(e) => updateNestedField('personalInfo.title', e.target.value)}
-                  placeholder="e.g., Software Engineer"
-                />
-              </div>
-              <div className="form-group">
-                <label>Email</label>
-                <input 
-                  type="email" 
-                  value={cvData.contact.email}
-                  onChange={(e) => updateNestedField('contact.email', e.target.value)}
-                  placeholder="your@email.com"
-                />
-              </div>
-              <div className="form-group">
-                <label>Location</label>
-                <input 
-                  type="text" 
-                  value={cvData.contact.location}
-                  onChange={(e) => updateNestedField('contact.location', e.target.value)}
-                  placeholder="City, Country"
-                />
-              </div>
-              <div className="form-group">
-                <label>Website</label>
-                <input 
-                  type="text" 
-                  value={cvData.contact.website}
-                  onChange={(e) => updateNestedField('contact.website', e.target.value)}
-                  placeholder="yourwebsite.com"
-                />
-              </div>
-              <div className="form-group">
-                <label>GitHub</label>
-                <input 
-                  type="text" 
-                  value={cvData.contact.github}
-                  onChange={(e) => updateNestedField('contact.github', e.target.value)}
-                  placeholder="@username"
-                />
-              </div>
-              <div className="form-group">
-                <label>LinkedIn</label>
-                <input 
-                  type="text" 
-                  value={cvData.contact.linkedin}
-                  onChange={(e) => updateNestedField('contact.linkedin', e.target.value)}
-                  placeholder="@username"
-                />
-              </div>
+        <div className="admin-layout">
+          {/* Sidebar Navigation */}
+          <div className="admin-sidebar">
+            <div className="sidebar-header">
+              <h3>Sections</h3>
             </div>
-          )}
+            <nav className="sidebar-nav">
+              <button 
+                className={`nav-item ${activeTab === 'personal' ? 'active' : ''}`}
+                onClick={() => setActiveTab('personal')}
+              >
+                <span className="nav-icon">👤</span>
+                <span className="nav-label">Personal</span>
+              </button>
+              <button 
+                className={`nav-item ${activeTab === 'contact' ? 'active' : ''}`}
+                onClick={() => setActiveTab('contact')}
+              >
+                <span className="nav-icon">📞</span>
+                <span className="nav-label">Contact</span>
+              </button>
+              <button 
+                className={`nav-item ${activeTab === 'skills' ? 'active' : ''}`}
+                onClick={() => setActiveTab('skills')}
+              >
+                <span className="nav-icon">⚡</span>
+                <span className="nav-label">Skills</span>
+              </button>
+              <button 
+                className={`nav-item ${activeTab === 'experience' ? 'active' : ''}`}
+                onClick={() => setActiveTab('experience')}
+              >
+                <span className="nav-icon">💼</span>
+                <span className="nav-label">Experience</span>
+              </button>
+              <button 
+                className={`nav-item ${activeTab === 'education' ? 'active' : ''}`}
+                onClick={() => setActiveTab('education')}
+              >
+                <span className="nav-icon">🎓</span>
+                <span className="nav-label">Education</span>
+              </button>
+              <button 
+                className={`nav-item ${activeTab === 'projects' ? 'active' : ''}`}
+                onClick={() => setActiveTab('projects')}
+              >
+                <span className="nav-icon">🚀</span>
+                <span className="nav-label">Projects</span>
+              </button>
+              <button 
+                className={`nav-item ${activeTab === 'extracurriculars' ? 'active' : ''}`}
+                onClick={() => setActiveTab('extracurriculars')}
+              >
+                <span className="nav-icon">🎯</span>
+                <span className="nav-label">Activities</span>
+              </button>
+              <button 
+                className={`nav-item ${activeTab === 'styling' ? 'active' : ''}`}
+                onClick={() => setActiveTab('styling')}
+              >
+                <span className="nav-icon">🎨</span>
+                <span className="nav-label">Style</span>
+              </button>
+            </nav>
+          </div>
 
-          {/* Skills Tab */}
-          {activeTab === 'skills' && (
-            <div className="form-section">
-              <h2>Skills</h2>
-              
-              <div className="skills-section">
-                <h3>Programming Languages</h3>
-                <div className="array-list">
-                  {cvData.skills.programming.map((skill, i) => (
+          {/* Main Content */}
+          <div className="admin-main">
+            {/* Status Message */}
+            {message && (
+              <div className={`status-banner ${message.includes('✓') ? 'success' : 'error'}`}>
+                {message}
+              </div>
+            )}
+
+            {/* Content Area */}
+            <div className="content-card">
+              {/* Personal Info Tab */}
+              {activeTab === 'personal' && (
+                <div className="form-section">
+                  <div className="section-header">
+                    <h2>👤 Personal Information</h2>
+                  </div>
+                  <div className="form-grid">
+                    <div className="form-group">
+                      <label>Full Name</label>
+                      <input 
+                        type="text" 
+                        value={cvData.personalInfo.name}
+                        onChange={(e) => updateNestedField('personalInfo.name', e.target.value)}
+                        placeholder="Enter your full name"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Professional Title</label>
+                      <input 
+                        type="text" 
+                        value={cvData.personalInfo.title}
+                        onChange={(e) => updateNestedField('personalInfo.title', e.target.value)}
+                        placeholder="e.g., Software Engineer"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Contact Tab */}
+              {activeTab === 'contact' && (
+                <div className="form-section">
+                  <div className="section-header">
+                    <h2>📞 Contact Information</h2>
+                  </div>
+                  <div className="form-grid">
+                    <div className="form-group">
+                      <label>Email</label>
+                      <input 
+                        type="email" 
+                        value={cvData.contact.email}
+                        onChange={(e) => updateNestedField('contact.email', e.target.value)}
+                        placeholder="your@email.com"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Location</label>
+                      <input 
+                        type="text" 
+                        value={cvData.contact.location}
+                        onChange={(e) => updateNestedField('contact.location', e.target.value)}
+                        placeholder="City, Country"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Website</label>
+                      <input 
+                        type="text" 
+                        value={cvData.contact.website}
+                        onChange={(e) => updateNestedField('contact.website', e.target.value)}
+                        placeholder="yourwebsite.com"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Phone</label>
+                      <input 
+                        type="tel" 
+                        value={cvData.contact.phone || ''}
+                        onChange={(e) => updateNestedField('contact.phone', e.target.value)}
+                        placeholder="+1 (555) 123-4567"
+                      />
+                    </div>
+                    <div className="form-group full-width">
+                      <label>GitHub</label>
+                      <input 
+                        type="text" 
+                        value={cvData.contact.github}
+                        onChange={(e) => updateNestedField('contact.github', e.target.value)}
+                        placeholder="github.com/username"
+                      />
+                    </div>
+                    <div className="form-group full-width">
+                      <label>LinkedIn</label>
+                      <input 
+                        type="text" 
+                        value={cvData.contact.linkedin}
+                        onChange={(e) => updateNestedField('contact.linkedin', e.target.value)}
+                        placeholder="linkedin.com/in/username"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
                     <div key={i} className="array-item skill-item-edit">
                       <div className="skill-input-group">
                         <input 
@@ -1020,6 +1057,21 @@ function AdminDashboard() {
               </div>
             </div>
           )}
+            </div>
+
+            {/* Action Footer */}
+            {authenticated && (
+              <div className="content-footer">
+                <button 
+                  className="save-btn" 
+                  onClick={handleSave} 
+                  disabled={loading}
+                >
+                  <MdSave /> {loading ? 'Saving...' : 'Save All Changes'}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
