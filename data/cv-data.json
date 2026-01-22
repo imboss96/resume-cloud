@@ -1,0 +1,201 @@
+{
+  "personalInfo": {
+    "name": "EZRA ONDIEKI",
+    "title": "Programming Enthusiast. Computer Science & Cybersecurity Student. Federated Athlete.",
+    "email": "me@diogotc.com",
+    "location": "Stockholm, Sweden",
+    "website": "diogotc.com",
+    "github": "@diogotcorreia",
+    "linkedin": "@diogotcorreia"
+  },
+  "contact": {
+    "email": "me@diogotc.com",
+    "location": "Stockholm, Sweden",
+    "website": "diogotc.com",
+    "github": "@diogotcorreia",
+    "linkedin": "@diogotcorreia"
+  },
+  "skills": {
+    "programming": [
+      {
+        "name": "JavaScript",
+        "proficiency": 100
+      },
+      {
+        "name": "React",
+        "proficiency": 98
+      },
+      "Node.js & Express",
+      "HTML/CSS",
+      {
+        "name": "Java",
+        "proficiency": 96
+      },
+      {
+        "name": "Python",
+        "proficiency": 100
+      },
+      "Vue",
+      "C",
+      "SQL",
+      "PHP",
+      "Spring"
+    ],
+    "operatingSystems": [
+      {
+        "name": "Linux",
+        "proficiency": 97
+      },
+      {
+        "name": "Windows",
+        "proficiency": 100
+      },
+      {
+        "name": "MacOS",
+        "proficiency": 100
+      },
+      {
+        "name": "Ubuntu Os",
+        "proficiency": 91
+      },
+      {
+        "name": "SailFish",
+        "proficiency": 54
+      }
+    ],
+    "tools": [
+      "Git",
+      "Docker",
+      "Burp Suite"
+    ],
+    "languages": [
+      "Portuguese (Native)",
+      "English (C1 IELTS Band 8.0)"
+    ]
+  },
+  "education": [
+    {
+      "period": "2020 - 2023",
+      "degree": "Bachelor's in Computer Science and Engineering (LEIC-A)",
+      "school": "Técnico Lisboa, Portugal",
+      "highlights": [
+        "Final average: 18.63/20 (19)",
+        "Elected Year Delegate (2021-2023) and Degree Delegate (2022 - 2023)",
+        "Awarded Academic Excellence Diploma (2020/2021)",
+        "Awarded Academic Merit Diploma (2021/2022)",
+        "Awarded Academic Excellence Diploma (2022/2023)",
+        "Top 3 amongst students who enrolled in LEIC-A in 2020/2021 (out of ~180)",
+        "Member of the University's Pedagogic Council"
+      ]
+    },
+    {
+      "period": "2023 - 2025 (expected)",
+      "degree": "Master's in Cybersecurity",
+      "school": "KTH Royal Institute of Technology, Sweden",
+      "highlights": []
+    }
+  ],
+  "experience": [
+    {
+      "period": "April 2021 - July 2023",
+      "title": "Research Initiation Grant",
+      "company": "Full Stack Developer at DASI, IST, Lisboa",
+      "description": "DASI is TécnicoLisboa's IT Services' Development Team, which I joined during my first year at the university. It is responsible for developing and managing the school's learning management system, FenixEdu, and other services. I developed a new version of the public API, as well as various bug fixes and UX improvements, some of which were my initiative."
+    }
+  ],
+  "projects": [
+    {
+      "name": "Resumos LEIC",
+      "link": "https://github.com/resumos-leic",
+      "period": "2021 - Present",
+      "tags": [
+        "React",
+        "Gatsby",
+        "JavaScript",
+        "Markdown"
+      ],
+      "description": "A completely open source website, dedicated to the creation of class notes focused on the courses in the curriculum of the BSc in Computer Science and Engineering at Técnico Lisboa, improving the academic performance of students. Currently, it achieves more than 30k monthly views across all pages."
+    },
+    {
+      "name": "Triton - Minecraft Plugin",
+      "link": "https://github.com/Triton-Development/Triton",
+      "period": "2016 - Present",
+      "tags": [
+        "Java",
+        "SpigotAPI",
+        "Java"
+      ],
+      "description": "A Minecraft plugin that intercepts network packets in search of placeholders, replacing them with translated messages in the player's language, which is written in Java, has more than 100 classes and 7000+ lines of code."
+    },
+    {
+      "name": "TWIN - Triton Web INterface",
+      "link": "https://github.com/Triton-Development/TWIN",
+      "period": "2019 - Present",
+      "tags": [
+        "JavaScript",
+        "React",
+        "NodeJS"
+      ],
+      "description": "A web app to configure the Triton plugin. Made with React, Redux and React Router. The plugin easily configure the Triton plugin, avoiding the need to manually editing JSON configuration files."
+    },
+    {
+      "name": "Craftathon",
+      "period": "2017, 2018",
+      "tags": [
+        "NodeJS",
+        "PHP"
+      ],
+      "description": "Craftathon was an American charity event, where I configured the ticketing system with Paypal. In the first edition, we used PHP, while in the second one we used NodeJS."
+    },
+    {
+      "name": "Livraria e Papelaria Espaço",
+      "link": "https://github.com/Triton-Development/TWIN",
+      "period": "2021 - Present",
+      "tags": [
+        "React",
+        "NextJS",
+        "NodeJS",
+        "Strapi"
+      ],
+      "description": "An online e-commerce store for a local bookstore, made with Next.js and Strapi. In addition to the online store, I have also made an internal program in order to speedup repetitive tasks, such as adding products to the billing program, saving dozens of manual labor hours."
+    },
+    {
+      "name": "Portugal Ultra Triathlon",
+      "period": "May, June 2018",
+      "tags": [
+        "PHP",
+        "HTML / CSS"
+      ],
+      "description": "PUT was a charity event with the goal of raising funds to 4 Portuguese associations related to sports. The website and donation system was made in HTML/CSS and PHP."
+    },
+    {
+      "name": "Frigu",
+      "period": "2022",
+      "tags": [
+        "Rust",
+        "Yew.rs + Axum.rs"
+      ],
+      "description": "A web application, developed in Rust and that uses Web Assembly for the frontend, to manage a small community fridge, keeping the transaction history and balance of each user. Docker images are automatically published on every release through GitHub Actions."
+    },
+    {
+      "name": "IST Delegate Election",
+      "period": "2023",
+      "tags": [
+        "Rust",
+        "TypeScript",
+        "React.js"
+      ],
+      "description": "An online voting platform used by the Técnico Lisboa's Pedagogical Council for delegate elections, made with Rust and Axum.rs for the backend, and TypeScript and React.js for the frontend. It integrates with the school's OAuth system and avoids storing personal information at all costs."
+    }
+  ],
+  "extracurriculars": [
+    "Member of Security Team @ Técnico (STT)",
+    "Member of RoyalRoppers at KTH",
+    "Informatics I and Web I Instructor at AfterSchool by TreeTree2",
+    "Portuguese Olympiad in Informatica 2020",
+    "Portuguese Olympiad in Physics 2019",
+    "Federated Athlete at Portuguese Athletics Federation (2018 - Present)",
+    "Member of Hackerschool student group at IST",
+    "Advent of Code Participant"
+  ]
+}

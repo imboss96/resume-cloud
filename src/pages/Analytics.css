@@ -1,0 +1,286 @@
+.analytics-container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 20px;
+}
+
+.analytics-header {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  gap: 20px;
+}
+
+.analytics-header h1 {
+  margin: 0;
+  color: #2c5f8d;
+  font-size: 28px;
+}
+
+.analytics-actions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.link-btn, .download-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.link-btn {
+  background-color: #3498db;
+  color: white;
+}
+
+.link-btn:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+}
+
+.download-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.download-btn:hover {
+  background-color: #c0392b;
+  transform: translateY(-2px);
+}
+
+.loading {
+  background: white;
+  padding: 50px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 18px;
+  color: #7f8c8d;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  border-top: 4px solid #2c5f8d;
+}
+
+.stat-icon {
+  font-size: 32px;
+  color: #2c5f8d;
+  margin-bottom: 15px;
+}
+
+.stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: #2c5f8d;
+  margin-bottom: 10px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #7f8c8d;
+  font-weight: 600;
+}
+
+/* Analytics Content */
+.analytics-content {
+  display: grid;
+  gap: 30px;
+}
+
+.analytics-section {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.analytics-section h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #2c5f8d;
+  font-size: 20px;
+}
+
+.analytics-section.full-width {
+  grid-column: 1 / -1;
+}
+
+.chart-container {
+  min-height: 300px;
+}
+
+.country-list,
+.network-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.country-item,
+.network-item {
+  display: grid;
+  grid-template-columns: 150px 1fr 60px;
+  gap: 15px;
+  align-items: center;
+}
+
+.country-name,
+.network-name {
+  font-weight: 600;
+  color: #34495e;
+}
+
+.bar-container {
+  background-color: #ecf0f1;
+  border-radius: 4px;
+  height: 25px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  background: linear-gradient(90deg, #2c5f8d, #3498db);
+  transition: width 0.3s ease;
+}
+
+.country-count,
+.network-count {
+  text-align: right;
+  font-weight: 600;
+  color: #2c5f8d;
+}
+
+/* Table */
+.table-container {
+  overflow-x: auto;
+}
+
+.views-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.views-table thead {
+  background-color: #f9f9f9;
+  border-bottom: 2px solid #2c5f8d;
+}
+
+.views-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  color: #2c5f8d;
+  font-size: 14px;
+}
+
+.views-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ecf0f1;
+  color: #555;
+  font-size: 13px;
+}
+
+.views-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.ip-address {
+  font-family: 'Courier New', monospace;
+  color: #2c5f8d;
+}
+
+.no-data {
+  text-align: center;
+  color: #7f8c8d;
+  padding: 40px 20px;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .analytics-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .analytics-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .link-btn, .download-btn {
+    flex: 1;
+    min-width: 100px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .country-item,
+  .network-item {
+    grid-template-columns: 100px 1fr 50px;
+  }
+
+  .country-name,
+  .network-name {
+    font-size: 12px;
+  }
+
+  .views-table {
+    font-size: 12px;
+  }
+
+  .views-table th,
+  .views-table td {
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .country-item,
+  .network-item {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .bar-container {
+    height: 20px;
+  }
+
+  .country-count,
+  .network-count {
+    text-align: left;
+  }
+}
