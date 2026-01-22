@@ -1,7 +1,5 @@
-import axios from 'axios';
-import { database, ref, set } from '../config/firebase';
-
-const API_BASE_URL = 'http://localhost:5000/api';
+import { database, ref, get, set } from '../config/firebase';
+import { defaultCVData } from '../data/defaultCVData';
 
 // Store admin password in session
 let adminPassword = null;
@@ -18,110 +16,96 @@ export const isAuthenticated = () => {
   return adminPassword !== null;
 };
 
-// Get IP and location info
+// Track view in Firebase
 export const trackView = async () => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/views/track`);
-    return response.data;
+    const viewData = {
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      url: window.location.href
+    };
+    
+    const viewsRef = ref(database, `views/${Date.now()}`);
+    await set(viewsRef, viewData);
+    return viewData;
   } catch (error) {
     console.error('Error tracking view:', error);
   }
 };
 
-// Get all views
+// Get all views from Firebase
 export const getViews = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/views`);
-    return response.data;
+    const viewsRef = ref(database, 'views');
+    const snapshot = await get(viewsRef);
+    
+    if (snapshot.exists()) {
+      const viewsData = snapshot.val();
+      const viewsArray = Object.values(viewsData);
+      return { views: viewsArray };
+    }
+    return { views: [] };
   } catch (error) {
     console.error('Error fetching views:', error);
+    return { views: [] };
   }
 };
 
-// Get CV data
+// Get CV data from Firebase
 export const getCVData = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/cv`);
-    return response.data;
+    const cvRef = ref(database, 'cvData');
+    const snapshot = await get(cvRef);
+    
+    if (snapshot.exists()) {
+      return snapshot.val();
+    }
+    return defaultCVData;
   } catch (error) {
     console.error('Error fetching CV data:', error);
+    return defaultCVData;
   }
 };
 
-// Authenticate admin
+// Authenticate admin (simple password check)
 export const authenticateAdmin = async (password) => {
   try {
-    console.log('Attempting to authenticate with API URL:', API_BASE_URL);
-    const response = await axios.post(`${API_BASE_URL}/admin/authenticate`, { password });
-    console.log('Authentication successful:', response.data);
-    if (response.data.success) {
+    // Get the admin password from Firebase
+    const adminRef = ref(database, 'admin/password');
+    const snapshot = await get(adminRef);
+    
+    let storedPassword = snapshot.val();
+    
+    // If no password set in Firebase, use default
+    if (!storedPassword) {
+      storedPassword = 'admin123'; // Default password
+    }
+    
+    if (password === storedPassword) {
       setAdminPassword(password);
-      return response.data;
+      return { success: true, message: 'Authenticated successfully' };
+    } else {
+      throw new Error('Invalid password');
     }
   } catch (error) {
     console.error('Error authenticating:', error);
-    if (error.response) {
-      throw new Error(error.response.data.error || 'Authentication failed');
-    } else if (error.request) {
-      throw new Error('Network error: Unable to reach the server. Make sure the backend server is running on port 5000.');
-    } else {
-      throw new Error('Error: ' + error.message);
-    }
+    throw new Error(error.message || 'Authentication failed');
   }
 };
 
-// Update CV data (Protected - requires admin password)
-// Now also submits to Firebase
+// Update CV data in Firebase (Protected - requires admin password)
 export const updateCVData = async (cvData) => {
   if (!adminPassword) {
     throw new Error('Not authenticated. Please log in first.');
   }
+  
   try {
-    // First update Firebase (with timeout)
-    try {
-      const firebasePromise = (async () => {
-        const dbRef = ref(database, 'cvData');
-        await set(dbRef, cvData);
-        console.log('✅ Data submitted to Firebase successfully');
-      })();
-      
-      // Set a 5 second timeout for Firebase
-      await Promise.race([
-        firebasePromise,
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Firebase timeout')), 5000)
-        )
-      ]).catch(err => {
-        console.warn('⚠️  Firebase update warning:', err.message);
-        // Continue even if Firebase fails or times out
-      });
-    } catch (firebaseError) {
-      console.warn('⚠️  Firebase error:', firebaseError.message);
-      // Continue even if Firebase fails - still update via backend
-    }
-
-    // Then update via backend for redundancy
-    const response = await axios.put(`${API_BASE_URL}/cv`, cvData, {
-      headers: {
-        'x-admin-password': adminPassword
-      },
-      timeout: 10000 // 10 second timeout
-    });
-    return response.data;
+    const cvRef = ref(database, 'cvData');
+    await set(cvRef, cvData);
+    console.log('✅ CV data updated in Firebase successfully');
+    return { success: true, message: 'CV data updated successfully' };
   } catch (error) {
     console.error('Error updating CV data:', error);
-    if (error.response) {
-      console.error('Response error:', error.response.data);
-      if (error.response.status === 401) {
-        clearAdminPassword();
-        throw new Error('Authentication failed. Please log in again.');
-      }
-      throw new Error(error.response.data.error || 'Error updating CV data');
-    } else if (error.request) {
-      console.error('No response received:', error.request);
-      throw new Error('Server not responding. Make sure the server is running on port 5000.');
-    } else {
-      throw error;
-    }
+    throw new Error(error.message || 'Error updating CV data');
   }
 };
