@@ -32,12 +32,15 @@ function AdminDashboard() {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setPasswordError('');
+    console.log('Submitting password...');
     try {
-      await authenticateAdmin(password);
+      const result = await authenticateAdmin(password);
+      console.log('Authentication result:', result);
       setAuthenticated(true);
       setShowPasswordPrompt(false);
       setPassword('');
     } catch (error) {
+      console.error('Auth error:', error);
       setPasswordError(error.message || 'Authentication failed. Please try again.');
     }
   };

@@ -70,25 +70,31 @@ export const getCVData = async () => {
 // Authenticate admin (simple password check)
 export const authenticateAdmin = async (password) => {
   try {
+    console.log('🔐 Authenticating with password:', password ? '***' : 'empty');
+    
     // Get the admin password from Firebase
     const adminRef = ref(database, 'admin/password');
     const snapshot = await get(adminRef);
     
     let storedPassword = snapshot.val();
+    console.log('Firebase password exists:', !!storedPassword);
     
     // If no password set in Firebase, use default
     if (!storedPassword) {
       storedPassword = 'admin123'; // Default password
+      console.log('Using default password');
     }
     
     if (password === storedPassword) {
+      console.log('✅ Authentication successful');
       setAdminPassword(password);
       return { success: true, message: 'Authenticated successfully' };
     } else {
+      console.log('❌ Password mismatch');
       throw new Error('Invalid password');
     }
   } catch (error) {
-    console.error('Error authenticating:', error);
+    console.error('❌ Authentication error:', error.message);
     throw new Error(error.message || 'Authentication failed');
   }
 };
