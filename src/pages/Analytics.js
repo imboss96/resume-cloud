@@ -20,13 +20,15 @@ function Analytics() {
     const networks = {};
 
     viewsData.forEach(view => {
-      uniqueIPs.add(view.ip);
+      if (view.ip && view.ip !== 'N/A') {
+        uniqueIPs.add(view.ip);
+      }
       
-      if (view.country) {
+      if (view.country && view.country !== 'Unknown') {
         countries[view.country] = (countries[view.country] || 0) + 1;
       }
       
-      if (view.network) {
+      if (view.network && view.network !== 'Unknown') {
         networks[view.network] = (networks[view.network] || 0) + 1;
       }
     });
@@ -39,8 +41,38 @@ function Analytics() {
     });
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString();
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'N/A';
+    
+    try {
+      let date;
+      
+      // Handle Firestore Timestamp object
+      if (timestamp && typeof timestamp.toDate === 'function') {
+        date = timestamp.toDate();
+      }
+      // Handle Date object
+      else if (timestamp instanceof Date) {
+        date = timestamp;
+      }
+      // Handle timestamp number (milliseconds)
+      else if (typeof timestamp === 'number') {
+        date = new Date(timestamp);
+      }
+      // Handle ISO string
+      else if (typeof timestamp === 'string') {
+        date = new Date(timestamp);
+      }
+      
+      if (date instanceof Date && !isNaN(date)) {
+        return date.toLocaleString();
+      }
+      
+      return 'Invalid Date';
+    } catch (error) {
+      console.error('Date formatting error:', error);
+      return 'Invalid Date';
+    }
   };
 
   useEffect(() => {

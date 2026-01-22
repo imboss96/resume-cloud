@@ -97,12 +97,17 @@ export const trackView = async () => {
   try {
     const viewData = {
       timestamp: serverTimestamp(),
+      url: window.location.href,
       userAgent: navigator.userAgent,
-      url: window.location.href
+      referrer: document.referrer || 'direct',
+      country: 'Unknown',
+      network: 'Unknown',
+      ip: 'N/A'
     };
     
     const viewsCollection = collection(db, 'views');
     await addDoc(viewsCollection, viewData);
+    console.log('✅ View tracked');
     return viewData;
   } catch (error) {
     console.error('Error tracking view:', error);
