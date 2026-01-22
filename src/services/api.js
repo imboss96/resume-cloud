@@ -76,17 +76,21 @@ export const authenticateAdmin = async (password) => {
   try {
     console.log('🔐 Authenticating with password:', password ? '***' : 'empty');
     
-    // Get the admin password from Firestore
-    const adminDocRef = doc(db, 'admin', 'credentials');
-    const snapshot = await getDoc(adminDocRef);
+    let storedPassword = 'admin123'; // Default password
     
-    let storedPassword = snapshot.data()?.password;
-    console.log('Firebase password exists:', !!storedPassword);
-    
-    // If no password set in Firestore, use default
-    if (!storedPassword) {
-      storedPassword = 'admin123'; // Default password
-      console.log('Using default password');
+    try {
+      // Try to get the admin password from Firestore
+      const adminDocRef = doc(db, 'admin', 'credentials');
+      const snapshot = await getDoc(adminDocRef);
+      
+      if (snapshot.exists() && snapshot.data()?.password) {
+        storedPassword = snapshot.data().password;
+        console.log('✅ Using custom password from Firestore');
+      } else {
+        console.log('Using default password (no custom password in Firestore)');
+      }
+    } catch (error) {
+      console.log('Could not read admin credentials from Firestore, using default password:', error.message);
     }
     
     if (password === storedPassword) {
