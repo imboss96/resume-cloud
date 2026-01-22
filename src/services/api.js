@@ -11,6 +11,9 @@ let isAdminUser = false;
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   if (user) {
+    console.log('🔍 Your Google UID:', user.uid);
+    console.log('📧 Email:', user.email);
+    
     // Check if user is admin in Firestore
     try {
       const userDocRef = doc(db, 'users', user.uid);
