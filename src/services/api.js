@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { database, ref, get, set } from '../config/firebase';
+import { database, ref, set } from '../config/firebase';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
@@ -77,13 +77,26 @@ export const updateCVData = async (cvData) => {
     throw new Error('Not authenticated. Please log in first.');
   }
   try {
-    // First update Firebase
+    // First update Firebase (with timeout)
     try {
-      const dbRef = ref(database, 'cvData');
-      await set(dbRef, cvData);
-      console.log('✅ Data submitted to Firebase successfully');
+      const firebasePromise = (async () => {
+        const dbRef = ref(database, 'cvData');
+        await set(dbRef, cvData);
+        console.log('✅ Data submitted to Firebase successfully');
+      })();
+      
+      // Set a 5 second timeout for Firebase
+      await Promise.race([
+        firebasePromise,
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Firebase timeout')), 5000)
+        )
+      ]).catch(err => {
+        console.warn('⚠️  Firebase update warning:', err.message);
+        // Continue even if Firebase fails or times out
+      });
     } catch (firebaseError) {
-      console.warn('⚠️  Firebase update warning:', firebaseError.message);
+      console.warn('⚠️  Firebase error:', firebaseError.message);
       // Continue even if Firebase fails - still update via backend
     }
 
@@ -91,7 +104,8 @@ export const updateCVData = async (cvData) => {
     const response = await axios.put(`${API_BASE_URL}/cv`, cvData, {
       headers: {
         'x-admin-password': adminPassword
-      }
+      },
+      timeout: 10000 // 10 second timeout
     });
     return response.data;
   } catch (error) {

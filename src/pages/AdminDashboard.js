@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getCVData, updateCVData, authenticateAdmin, isAuthenticated, clearAdminPassword } from '../services/api';
 import { defaultCVData } from '../data/defaultCVData';
-import { MdSave, MdCheckCircle, MdError, MdLogout } from 'react-icons/md';
+import { MdSave, MdLogout, MdClose } from 'react-icons/md';
 import './AdminDashboard.css';
 
 function AdminDashboard() {
@@ -52,17 +52,21 @@ function AdminDashboard() {
 
   const handleSave = async () => {
     setLoading(true);
-    setMessage('');
+    setMessage('Saving...');
     try {
+      console.log('Starting save...');
       await updateCVData(cvData);
+      console.log('Save completed successfully');
       setMessage('✓ CV data saved successfully!');
       setTimeout(() => setMessage(''), 3000);
     } catch (error) {
       console.error('Save error:', error);
       const errorMsg = error.message || 'Error saving CV data. Please try again.';
       setMessage(`✗ ${errorMsg}`);
+      setTimeout(() => setMessage(''), 5000);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const updateNestedField = (path, value) => {
@@ -148,6 +152,9 @@ function AdminDashboard() {
           <button className="save-btn" onClick={handleSave} disabled={loading || !authenticated}>
             {loading ? 'Saving...' : <><MdSave /> Save Changes</>}
           </button>
+          <a href="/" className="close-btn" title="Cancel">
+            <MdClose />
+          </a>
         </div>
       </div>
 

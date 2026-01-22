@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getCVData } from '../../services/api';
 import { defaultCVData } from '../../data/defaultCVData';
-import { MdPrint, MdDownload, MdSettings, MdEmail, MdLocationOn, MdLanguage, MdCalendarToday, MdLink, MdSchool, MdWorkHistory, MdLightbulb, MdEmojiEvents } from 'react-icons/md';
+import { MdDownload, MdSettings, MdEmail, MdLocationOn, MdLanguage, MdCalendarToday, MdLink, MdSchool, MdWorkHistory, MdLightbulb, MdEmojiEvents, MdClose } from 'react-icons/md';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -75,12 +75,15 @@ function CVDisplay() {
 
   return (
     <div className="cv-container">
-      <div className="cv-actions">
+      <div className="cv-actions-sidebar">
         <button className="btn btn-download" onClick={handleDownloadPDF} title="Download as PDF">
-          <MdDownload /> Download PDF
+          <MdDownload />
         </button>
         <a href="/admin" className="btn btn-admin" title="Edit CV">
-          <MdSettings /> Edit CV
+          <MdSettings />
+        </a>
+        <a href="/" className="btn btn-close" title="Close">
+          <MdClose />
         </a>
       </div>
 
@@ -88,18 +91,22 @@ function CVDisplay() {
         <div className="cv-page">
           {/* Header */}
           <header className="cv-header">
-            <h1 style={{
-              color: cvData.styling?.name?.color,
-              fontSize: cvData.styling?.name?.fontSize,
-              fontFamily: cvData.styling?.name?.fontFamily,
-              fontWeight: cvData.styling?.name?.fontWeight
-            }}>{cvData.personalInfo.name}</h1>
-            <p className="cv-title" style={{
-              color: cvData.styling?.title?.color,
-              fontSize: cvData.styling?.title?.fontSize,
-              fontFamily: cvData.styling?.title?.fontFamily,
-              fontWeight: cvData.styling?.title?.fontWeight
-            }}>{cvData.personalInfo.title}</p>
+            <div className="header-top">
+              <div className="header-title">
+                <h1 style={{
+                  color: cvData.styling?.name?.color,
+                  fontSize: cvData.styling?.name?.fontSize,
+                  fontFamily: cvData.styling?.name?.fontFamily,
+                  fontWeight: cvData.styling?.name?.fontWeight
+                }}>{cvData.personalInfo.name}</h1>
+                <p className="cv-title" style={{
+                  color: cvData.styling?.title?.color,
+                  fontSize: cvData.styling?.title?.fontSize,
+                  fontFamily: cvData.styling?.title?.fontFamily,
+                  fontWeight: cvData.styling?.title?.fontWeight
+                }}>{cvData.personalInfo.title}</p>
+              </div>
+            </div>
           </header>
 
           <div className="cv-body">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getViews } from '../services/api';
-import { MdDownload, MdRefresh } from 'react-icons/md';
+import { MdDownload } from 'react-icons/md';
 import { FaEye, FaGlobe, FaNetworkWired } from 'react-icons/fa';
 import './Analytics.css';
 
@@ -61,7 +61,7 @@ function Analytics() {
     // Refresh every 30 seconds
     const interval = setInterval(loadViews, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [loadViews]);
 
   const downloadCSV = () => {
     let csv = 'IP Address,Country,Network,Timestamp\n';
