@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getCVData, updateCVData, authenticateAdmin, isAuthenticated, clearAdminPassword } from '../services/api';
+import { getCVData, updateCVData, signInWithGoogle, signOutUser, isAuthenticated, isAdmin, getCurrentUser } from '../services/api';
 import { defaultCVData } from '../data/defaultCVData';
 import { MdSave, MdLogout, MdClose } from 'react-icons/md';
 import './AdminDashboard.css';
@@ -10,9 +10,9 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [authenticated, setAuthenticated] = useState(isAuthenticated());
-  const [password, setPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [showPasswordPrompt, setShowPasswordPrompt] = useState(!isAuthenticated());
+  const [userEmail, setUserEmail] = useState(null);
+  const [authError, setAuthError] = useState('');
+  const [showAuthPrompt, setShowAuthPrompt] = useState(!isAuthenticated());
 
   useEffect(() => {
     const loadCV = async () => {
@@ -27,30 +27,41 @@ function AdminDashboard() {
     };
     
     loadCV();
+    
+    // Update auth state
+    const user = getCurrentUser();
+    if (user) {
+      setUserEmail(user.email);
+      setAuthenticated(isAuthenticated() && isAdmin());
+      setShowAuthPrompt(!isAdmin());
+    }
   }, []);
 
-  const handlePasswordSubmit = async (e) => {
-    e.preventDefault();
-    setPasswordError('');
-    console.log('Submitting password...');
+  const handleGoogleSignIn = async () => {
+    setAuthError('');
     try {
-      const result = await authenticateAdmin(password);
-      console.log('Authentication result:', result);
+      const result = await signInWithGoogle();
+      console.log('Sign-in successful:', result);
       setAuthenticated(true);
-      setShowPasswordPrompt(false);
-      setPassword('');
+      setUserEmail(result.user.email);
+      setShowAuthPrompt(false);
     } catch (error) {
-      console.error('Auth error:', error);
-      setPasswordError(error.message || 'Authentication failed. Please try again.');
+      console.error('Sign-in error:', error);
+      setAuthError(error.message || 'Sign-in failed. Please try again.');
     }
   };
 
-  const handleLogout = () => {
-    clearAdminPassword();
-    setAuthenticated(false);
-    setShowPasswordPrompt(true);
-    setPassword('');
-    setPasswordError('');
+  const handleLogout = async () => {
+    try {
+      await signOutUser();
+      setAuthenticated(false);
+      setUserEmail(null);
+      setShowAuthPrompt(true);
+      setAuthError('');
+    } catch (error) {
+      console.error('Sign-out error:', error);
+      setAuthError(error.message || 'Sign-out failed.');
+    }
   };
 
   const handleSave = async () => {
@@ -117,27 +128,22 @@ function AdminDashboard() {
   return (
     <div className="admin-container">
       {/* Authentication Modal */}
-      {showPasswordPrompt && (
+      {showAuthPrompt && (
         <div className="auth-modal-overlay">
           <div className="auth-modal">
-            <h2>🔐 Admin Authentication</h2>
-            <p>Enter your admin password to edit the CV</p>
-            <form onSubmit={handlePasswordSubmit}>
-              <div className="form-group">
-                <label>Admin Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter admin password"
-                  autoFocus
-                />
-              </div>
-              {passwordError && <div className="auth-error">{passwordError}</div>}
-              <button type="submit" className="auth-submit-btn">
-                Authenticate
-              </button>
-            </form>
+            <h2>🔐 Admin Access Required</h2>
+            <p>Sign in with Google to edit the CV</p>
+            {authError && <div className="auth-error">{authError}</div>}
+            <button 
+              type="button" 
+              className="google-signin-btn"
+              onClick={handleGoogleSignIn}
+            >
+              🔐 Sign in with Google
+            </button>
+            <p style={{ marginTop: '20px', fontSize: '12px', color: '#666' }}>
+              Your email must be marked as admin in the database to edit
+            </p>
           </div>
         </div>
       )}
@@ -148,9 +154,12 @@ function AdminDashboard() {
           <a href="/" className="link-btn">View CV</a>
           <a href="/analytics" className="link-btn">📈 Analytics</a>
           {authenticated && (
-            <button className="logout-btn" onClick={handleLogout}>
-              <MdLogout /> Logout
-            </button>
+            <>
+              <span className="user-email">👤 {userEmail}</span>
+              <button className="logout-btn" onClick={handleLogout}>
+                <MdLogout /> Logout
+              </button>
+            </>
           )}
           <button className="save-btn" onClick={handleSave} disabled={loading || !authenticated}>
             {loading ? 'Saving...' : <><MdSave /> Save Changes</>}

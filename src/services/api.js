@@ -1,20 +1,76 @@
-import { db } from '../config/firebase';
-import { collection, doc, getDoc, setDoc, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db, auth, googleProvider } from '../config/firebase';
+import { collection, doc, getDoc, setDoc, getDocs, addDoc, serverTimestamp, query, where } from 'firebase/firestore';
+import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { defaultCVData } from '../data/defaultCVData';
 
-// Store admin password in session
-let adminPassword = null;
+// Store current user
+let currentUser = null;
+let isAdminUser = false;
 
-export const setAdminPassword = (password) => {
-  adminPassword = password;
+// Listen for auth state changes
+onAuthStateChanged(auth, async (user) => {
+  currentUser = user;
+  if (user) {
+    // Check if user is admin in Firestore
+    try {
+      const userDocRef = doc(db, 'users', user.uid);
+      const snapshot = await getDoc(userDocRef);
+      isAdminUser = snapshot.exists() && snapshot.data()?.isAdmin === true;
+      console.log(`✅ User ${user.email} - Admin: ${isAdminUser}`);
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      isAdminUser = false;
+    }
+  } else {
+    isAdminUser = false;
+  }
+});
+
+// Get current user
+export const getCurrentUser = () => currentUser;
+
+// Check if authenticated
+export const isAuthenticated = () => currentUser !== null;
+
+// Check if admin
+export const isAdmin = () => isAdminUser;
+
+// Sign in with Google
+export const signInWithGoogle = async () => {
+  try {
+    console.log('🔐 Signing in with Google...');
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+    console.log('✅ Signed in as:', user.email);
+    
+    // Check if user is admin
+    const userDocRef = doc(db, 'users', user.uid);
+    const snapshot = await getDoc(userDocRef);
+    
+    if (snapshot.exists() && snapshot.data()?.isAdmin === true) {
+      console.log('✅ User is admin');
+      return { user, isAdmin: true };
+    } else {
+      console.log('❌ User is not admin - please contact administrator');
+      throw new Error('You do not have admin access. Please contact the administrator.');
+    }
+  } catch (error) {
+    console.error('❌ Sign-in error:', error.message);
+    throw error;
+  }
 };
 
-export const clearAdminPassword = () => {
-  adminPassword = null;
-};
-
-export const isAuthenticated = () => {
-  return adminPassword !== null;
+// Sign out
+export const signOutUser = async () => {
+  try {
+    await signOut(auth);
+    currentUser = null;
+    isAdminUser = false;
+    console.log('✅ Signed out');
+  } catch (error) {
+    console.error('Error signing out:', error);
+    throw error;
+  }
 };
 
 // Track view in Firestore
@@ -71,46 +127,10 @@ export const getCVData = async () => {
   }
 };
 
-// Authenticate admin (simple password check)
-export const authenticateAdmin = async (password) => {
-  try {
-    console.log('🔐 Authenticating with password:', password ? '***' : 'empty');
-    
-    let storedPassword = 'admin123'; // Default password
-    
-    try {
-      // Try to get the admin password from Firestore
-      const adminDocRef = doc(db, 'admin', 'credentials');
-      const snapshot = await getDoc(adminDocRef);
-      
-      if (snapshot.exists() && snapshot.data()?.password) {
-        storedPassword = snapshot.data().password;
-        console.log('✅ Using custom password from Firestore');
-      } else {
-        console.log('Using default password (no custom password in Firestore)');
-      }
-    } catch (error) {
-      console.log('Could not read admin credentials from Firestore, using default password:', error.message);
-    }
-    
-    if (password === storedPassword) {
-      console.log('✅ Authentication successful');
-      setAdminPassword(password);
-      return { success: true, message: 'Authenticated successfully' };
-    } else {
-      console.log('❌ Password mismatch');
-      throw new Error('Invalid password');
-    }
-  } catch (error) {
-    console.error('❌ Authentication error:', error.message);
-    throw new Error(error.message || 'Authentication failed');
-  }
-};
-
-// Update CV data in Firestore (Protected - requires admin password)
+// Update CV data in Firestore (Protected - requires admin)
 export const updateCVData = async (cvData) => {
-  if (!adminPassword) {
-    throw new Error('Not authenticated. Please log in first.');
+  if (!isAdminUser) {
+    throw new Error('You do not have admin access to edit the CV.');
   }
   
   try {
