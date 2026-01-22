@@ -14,19 +14,6 @@ function Analytics() {
     networks: {}
   });
 
-  const loadViews = async () => {
-    try {
-      const data = await getViews();
-      if (data && data.views) {
-        setViews(data.views);
-        calculateStats(data.views);
-      }
-    } catch (error) {
-      console.error('Error loading views:', error);
-    }
-    setLoading(false);
-  };
-
   const calculateStats = (viewsData) => {
     const uniqueIPs = new Set();
     const countries = {};
@@ -57,11 +44,24 @@ function Analytics() {
   };
 
   useEffect(() => {
+    const loadViews = async () => {
+      try {
+        const data = await getViews();
+        if (data && data.views) {
+          setViews(data.views);
+          calculateStats(data.views);
+        }
+      } catch (error) {
+        console.error('Error loading views:', error);
+      }
+      setLoading(false);
+    };
+
     loadViews();
     // Refresh every 30 seconds
     const interval = setInterval(loadViews, 30000);
     return () => clearInterval(interval);
-  }, [loadViews]);
+  }, []);
 
   const downloadCSV = () => {
     let csv = 'IP Address,Country,Network,Timestamp\n';
