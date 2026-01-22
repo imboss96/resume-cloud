@@ -1,4 +1,5 @@
-import { database, ref, get, set } from '../config/firebase';
+import { db } from '../config/firebase';
+import { collection, doc, getDoc, setDoc, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 import { defaultCVData } from '../data/defaultCVData';
 
 // Store admin password in session
@@ -16,49 +17,52 @@ export const isAuthenticated = () => {
   return adminPassword !== null;
 };
 
-// Track view in Firebase
+// Track view in Firestore
 export const trackView = async () => {
   try {
     const viewData = {
-      timestamp: new Date().toISOString(),
+      timestamp: serverTimestamp(),
       userAgent: navigator.userAgent,
       url: window.location.href
     };
     
-    const viewsRef = ref(database, `views/${Date.now()}`);
-    await set(viewsRef, viewData);
+    const viewsCollection = collection(db, 'views');
+    await addDoc(viewsCollection, viewData);
     return viewData;
   } catch (error) {
     console.error('Error tracking view:', error);
   }
 };
 
-// Get all views from Firebase
+// Get all views from Firestore
 export const getViews = async () => {
   try {
-    const viewsRef = ref(database, 'views');
-    const snapshot = await get(viewsRef);
+    const viewsCollection = collection(db, 'views');
+    const snapshot = await getDocs(viewsCollection);
     
-    if (snapshot.exists()) {
-      const viewsData = snapshot.val();
-      const viewsArray = Object.values(viewsData);
-      return { views: viewsArray };
-    }
-    return { views: [] };
+    const viewsArray = [];
+    snapshot.forEach(doc => {
+      viewsArray.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+    
+    return { views: viewsArray };
   } catch (error) {
     console.error('Error fetching views:', error);
     return { views: [] };
   }
 };
 
-// Get CV data from Firebase
+// Get CV data from Firestore
 export const getCVData = async () => {
   try {
-    const cvRef = ref(database, 'cvData');
-    const snapshot = await get(cvRef);
+    const cvDocRef = doc(db, 'cvData', 'cv');
+    const snapshot = await getDoc(cvDocRef);
     
     if (snapshot.exists()) {
-      return snapshot.val();
+      return snapshot.data();
     }
     return defaultCVData;
   } catch (error) {
@@ -72,14 +76,14 @@ export const authenticateAdmin = async (password) => {
   try {
     console.log('🔐 Authenticating with password:', password ? '***' : 'empty');
     
-    // Get the admin password from Firebase
-    const adminRef = ref(database, 'admin/password');
-    const snapshot = await get(adminRef);
+    // Get the admin password from Firestore
+    const adminDocRef = doc(db, 'admin', 'credentials');
+    const snapshot = await getDoc(adminDocRef);
     
-    let storedPassword = snapshot.val();
+    let storedPassword = snapshot.data()?.password;
     console.log('Firebase password exists:', !!storedPassword);
     
-    // If no password set in Firebase, use default
+    // If no password set in Firestore, use default
     if (!storedPassword) {
       storedPassword = 'admin123'; // Default password
       console.log('Using default password');
@@ -99,16 +103,16 @@ export const authenticateAdmin = async (password) => {
   }
 };
 
-// Update CV data in Firebase (Protected - requires admin password)
+// Update CV data in Firestore (Protected - requires admin password)
 export const updateCVData = async (cvData) => {
   if (!adminPassword) {
     throw new Error('Not authenticated. Please log in first.');
   }
   
   try {
-    const cvRef = ref(database, 'cvData');
-    await set(cvRef, cvData);
-    console.log('✅ CV data updated in Firebase successfully');
+    const cvDocRef = doc(db, 'cvData', 'cv');
+    await setDoc(cvDocRef, cvData, { merge: true });
+    console.log('✅ CV data updated in Firestore successfully');
     return { success: true, message: 'CV data updated successfully' };
   } catch (error) {
     console.error('Error updating CV data:', error);
