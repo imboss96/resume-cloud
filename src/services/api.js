@@ -1,5 +1,5 @@
 import { db, auth, googleProvider } from '../config/firebase';
-import { collection, doc, getDoc, setDoc, getDocs, addDoc, serverTimestamp, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, setDoc, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { defaultCVData } from '../data/defaultCVData';
 
@@ -45,16 +45,32 @@ export const signInWithGoogle = async () => {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
     console.log('✅ Signed in as:', user.email);
+    console.log('🔍 Your Google UID:', user.uid);
     
-    // Check if user is admin
+    // Create or update user document
     const userDocRef = doc(db, 'users', user.uid);
     const snapshot = await getDoc(userDocRef);
     
-    if (snapshot.exists() && snapshot.data()?.isAdmin === true) {
+    if (!snapshot.exists()) {
+      // First time sign-in: create user document with isAdmin=false
+      console.log('📝 Creating user document...');
+      await setDoc(userDocRef, {
+        email: user.email,
+        isAdmin: false,
+        createdAt: serverTimestamp()
+      });
+      console.log('✅ User document created in Firestore!');
+      console.log('📌 Go to Firebase Console → Firestore → users collection');
+      console.log('📌 Find your document with UID:', user.uid);
+      console.log('📌 Set isAdmin field to true');
+      throw new Error('User document created. Please enable admin access in Firebase Console.');
+    }
+    
+    if (snapshot.data()?.isAdmin === true) {
       console.log('✅ User is admin');
       return { user, isAdmin: true };
     } else {
-      console.log('❌ User is not admin - please contact administrator');
+      console.log('❌ User is not admin');
       throw new Error('You do not have admin access. Please contact the administrator.');
     }
   } catch (error) {
